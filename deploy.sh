@@ -3,10 +3,10 @@
 # main config
 PLUGINSLUG="plugin-slug"
 CURRENTDIR=`pwd`
-MAINFILE="class-plugin.php" # this should be the name of your main php file in the wordpress plugin
+MAINFILE=`grep -rl --include=*.php 'Plugin Name' *` # this should be the name of your main php file in the wordpress plugin
 
 # git config
-GITPATH="$CURRENTDIR/" # this file should be in the base of your git repository
+GITPATH="$CURRENTDIR" # this file should be in the base of your git repository
 
 # svn config
 SVNPATH="/tmp/$PLUGINSLUG" # path to a temp SVN repo. No trailing slash required and don't add trunk.
@@ -22,12 +22,8 @@ echo
 echo ".........................................."
 echo 
 
-# Check if subversion is installed before getting all worked up
-if [ $(dpkg-query -W -f='${Status}' subversion 2>/dev/null | grep -c "ok installed") != "1" ]
-then
-	echo "You'll need to install subversion before proceeding. Exiting....";
-	exit 1;
-fi
+# TODO: Check if subversion is installed before getting all worked up
+
 
 # Check version in readme.txt is the same as plugin file after translating both to unix line breaks to work around grep's failure to identify mac line breaks
 NEWVERSION1=`grep "^Stable tag:" $GITPATH/readme.txt | awk -F' ' '{print $NF}'`
@@ -50,24 +46,24 @@ fi
 cd $GITPATH
 echo -e "Enter a commit message for this new version: \c"
 read COMMITMSG
-git commit -am "$COMMITMSG"
+echo git commit -am "$COMMITMSG"
 
 echo "Tagging new version in git"
-git tag -a "$NEWVERSION1" -m "Tagging version $NEWVERSION1"
+echo git tag -a "$NEWVERSION1" -m "Tagging version $NEWVERSION1"
 
 echo "Pushing latest commit to origin, with tags"
-git push origin master
-git push origin master --tags
+echo git push origin master
+echo git push origin master --tags
 
 echo 
 echo "Creating local copy of SVN repo ..."
-svn co $SVNURL $SVNPATH
+echo svn co $SVNURL $SVNPATH
 
 echo "Exporting the HEAD of master from git to the trunk of SVN"
-git checkout-index -a -f --prefix=$SVNPATH/trunk/
+echo git checkout-index -a -f --prefix=$SVNPATH/trunk/
 
 echo "Ignoring github specific files and deployment script"
-svn propset svn:ignore "deploy.sh
+echo svn propset svn:ignore "deploy.sh
 README.md
 .git
 .gitignore" "$SVNPATH/trunk/"
@@ -75,16 +71,16 @@ README.md
 echo "Changing directory to SVN and committing to trunk"
 cd $SVNPATH/trunk/
 # Add all new files that are not set to be ignored
-svn status | grep -v "^.[ \t]*\..*" | grep "^?" | awk '{print $2}' | xargs svn add
-svn commit --username=$SVNUSER -m "$COMMITMSG"
+echo svn status | grep -v "^.[ \t]*\..*" | grep "^?" | awk '{print $2}' | xargs svn add
+echo svn commit --username=$SVNUSER -m "$COMMITMSG"
 
 echo "Creating new SVN tag & committing it"
 cd $SVNPATH
-svn copy trunk/ tags/$NEWVERSION1/
+echo svn copy trunk/ tags/$NEWVERSION1/
 cd $SVNPATH/tags/$NEWVERSION1
-svn commit --username=$SVNUSER -m "Tagging version $NEWVERSION1"
+echo svn commit --username=$SVNUSER -m "Tagging version $NEWVERSION1"
 
 echo "Removing temporary directory $SVNPATH"
-rm -fr $SVNPATH/
+echo rm -fr $SVNPATH/
 
-echo "*** FIN ***"
+echo "*** THE END ***"
