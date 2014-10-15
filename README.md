@@ -8,3 +8,12 @@ The wordpress plugin repository requires that you check your plugin code into an
 
 This has been modified to work on OS X instead of linux. 
 
+
+## Installation 
+
+Copy deploy.sh to your plugins root directory. Ensure that the file is executable. 
+
+Set the following variables in the file. 
+
+PLUGINSLUG="plugin-slug" #plugin slug
+SVNUSER="wordpresssvnusername" # your svn username
